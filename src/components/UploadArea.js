@@ -1,16 +1,109 @@
-import React from "react";
+// import React from "react";
+// import {useState} from "react";
+// interface UploadPDFProps {
+//   onUploaded:(collectionName:string)=>void
+// }
 
-export default function UploadArea() {
+// export default function UploadArea({onUploaded}:UploadPDFProps) {
+//   const [file, setFile]=useState<File | null>(null)
+//   const [status ,setStatus]=useState("No file uploaded")
+//   const handleUpload=async ()=>{
+//     if(!file){
+//       setStatus('File Uploading')
+//       const formData=new FormData();
+//       formData.append('file',file);
+//       try{
+//         const res=await fetch('/api/pdf-upload',{
+//           method:'POST',
+//           body:formData,
+//         })
+//         const data=await res.json();
+//         if(res.ok){
+//           setStatus(`Success! Collection: ${data.collectionName}`)
+
+//         }else{
+//           setStatus(`Error: ${data.error || data.message}`)
+//         }
+//       }catch(error){
+//         console.log(error);
+//         setStatus('Error uploading file')
+//       }
+//     }
+//   }
+//   return (
+//     <div style={{
+//       width: "20%",          // 1 part of 1:4 ratio
+//       backgroundColor: "#f0f0f0",
+//       padding: "10px",
+//       height: "100vh",
+//       boxSizing: "border-box"
+//     }}>
+//       <h3>Upload PDF</h3>
+//       <input 
+//       accept='.pdf'
+//       onChange={(e=>e.target.files?.[0]|| null)}
+//       type="file" />
+//       <button
+//       onClick={handleUpload}>Upload</button>
+//     </div>
+//   );
+// }
+
+
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+
+export default function UploadArea({ onUploaded }) {
+  const [file, setFile] = useState(null);
+  const [status, setStatus] = useState("No file uploaded");
+
+  const handleUpload = async () => {
+    if (!file) {
+      setStatus("File Uploading");
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const res = await fetch("/api/pdf-upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setStatus(`Success! Collection: ${data.collectionName}`);
+          if (onUploaded) onUploaded(data.collectionName);
+        } else {
+          setStatus(`Error: ${data.error || data.message}`);
+        }
+      } catch (error) {
+        console.log(error);
+        setStatus("Error uploading file");
+      }
+    }
+  };
+
   return (
-    <div style={{
-      width: "20%",          // 1 part of 1:4 ratio
-      backgroundColor: "#f0f0f0",
-      padding: "10px",
-      height: "100vh",
-      boxSizing: "border-box"
-    }}>
+    <div
+      style={{
+        width: "20%", // 1 part of 1:4 ratio
+        backgroundColor: "#f0f0f0",
+        padding: "10px",
+        height: "100vh",
+        boxSizing: "border-box",
+      }}
+    >
       <h3>Upload PDF</h3>
-      <input type="file" />
+      <input
+        accept=".pdf"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+        type="file"
+      />
+      <button onClick={handleUpload}>Upload</button>
+      <p>{status}</p>
     </div>
   );
 }
+
+// Define prop types for runtime checking
+UploadArea.propTypes = {
+  onUploaded: PropTypes.func.isRequired,
+};
