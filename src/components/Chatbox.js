@@ -52,17 +52,31 @@ import {useState} from 'react';
 const Chatbox=()=>{
   const [messages,setMessages]=useState([]);
   const [inputValue,setInputValue]=useState('')
+
+  const handleClick=()=>{
+    if(!inputValue.trim()) return;
+    setMessages((prev)=>[...prev,{type:"user",text:inputValue}]);
+    setInputValue('');
+    // Add AI response logic here later
+  }
   return(
     <div style={{flex:1,padding:"20px",display:"flex",flexDirection:"column",backgroundColor:"#fff"}}>
       <InsightAssistant/>
       <h3>Chat with your document</h3>
       <div style={{flex:1,overflowY:"auto",marginBottom:"10px",border:"1px solid #ccc",padding:"10px"}}>
         <p>Welcome! Ask me anything about your documents.</p>
+        {messages.map((msg,index)=>(
+          <p key={index} style={{textAlign:msg.type==="user"?"right":"left"}}>
+            <strong>{msg.type==="user"?"You":"AI"}:</strong> {msg.text}
+          </p>
+        ))}
         
       </div>
       <div>
-        <input placeholder='Type your message...' style={{width:"80%",padding:"5px"}}/>
-        <button style={{padding:"5px 10px",marginLeft:"5px"}}>Send</button>
+        <input value={inputValue} 
+        onChange={(e)=>setInputValue(e.target.value)}
+        placeholder='Type your message...' style={{width:"80%",padding:"5px"}}/>
+        <button onClick={handleClick} style={{padding:"5px 10px",marginLeft:"5px"}}>Send</button>
       </div>
     </div>
   )
