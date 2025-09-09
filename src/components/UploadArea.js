@@ -1,68 +1,8 @@
-
-
-
-// import React, { useState } from "react";
-// import PropTypes from "prop-types";
-
-// export default function UploadArea({ onUploaded }) {
-//   const [file, setFile] = useState(null);
-//   const [status, setStatus] = useState("No file uploaded");
-
-//   const handleUpload = async () => {
-//     if (!file) {
-//       setStatus("File Uploading");
-//       const formData = new FormData();
-//       formData.append("file", file);
-//       try {
-//         const res = await fetch("/api/Upload", {
-//           method: "POST",
-//           body: formData,
-//         });
-//         const data = await res.json();
-//         if (res.ok) {
-//           setStatus(`Success! Collection: ${data.collectionName}`);
-//           if (onUploaded) onUploaded(data.collectionName);
-//         } else {
-//           setStatus(`Error: ${data.error || data.message}`);
-//         }
-//       } catch (error) {
-//         console.log(error);
-//         setStatus("Error uploading file");
-//       }
-//     }
-//   };
-
-//   return (
-//     <div
-//       style={{
-//         width: "20%", // 1 part of 1:4 ratio
-//         backgroundColor: "#f0f0f0",
-//         padding: "10px",
-//         height: "100vh",
-//         boxSizing: "border-box",
-//       }}
-//     >
-//       <h3>Upload PDF</h3>
-//       <input
-//         accept=".pdf"
-//         onChange={(e) => setFile(e.target.files?.[0] || null)}
-//         type="file"
-//       />
-//       <button onClick={handleUpload}>Upload</button>
-//       <p>{status}</p>
-//     </div>
-//   );
-// }
-
-// // Define prop types for runtime checking
-// UploadArea.propTypes = {
-//   onUploaded: PropTypes.func.isRequired,
-// };
-
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 
-export default function UploadArea({ onUploaded }) {
+
+
+const UploadArea = ({ onUploaded }) => {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("No file uploaded");
   const [fileInfo, setFileInfo] = useState(null);
@@ -73,33 +13,37 @@ export default function UploadArea({ onUploaded }) {
       return;
     }
 
-    setStatus("File Uploading...");
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
+      setStatus("Uploading...");
+      const formData = new FormData();
+      formData.append("file", file);
 
-      if (res.ok) {
-        setStatus(`Upload Success!`);
-        setFileInfo({
-          name: data.fileName,
-          size: data.fileSize,
-          type: data.fileType,
-          collection: data.collectionName,
-        });
-        if (onUploaded) onUploaded(data.collectionName);
-      } else {
-        setStatus(`Error: ${data.error || data.message}`);
-        setFileInfo(null);
+      const response = await fetch("http://localhost:8000/api/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      console.log("Server response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Upload failed");
       }
+
+      setStatus("Upload successful!");
+      setFileInfo({
+        name: data.fileName,
+        size: data.fileSize,
+        collection: data.collectionName
+      });
+
+      if (onUploaded) {
+        onUploaded(data.collectionName);
+      }
+
     } catch (error) {
-      console.error(error);
-      setStatus("Error uploading file");
+      console.error("Upload failed:", error);
+      setStatus(`Error: ${error.message}`);
       setFileInfo(null);
     }
   };
@@ -117,27 +61,55 @@ export default function UploadArea({ onUploaded }) {
       <h3>Upload PDF</h3>
       <input
         type="file"
+        name="file" 
         accept=".pdf"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{
+          marginBottom: "10px",
+          padding: "5px",
+          border: "1px solid #ccc",
+          borderRadius: "4px"
+        }}
       />
-      <button onClick={handleUpload} style={{ marginTop: "10px" }}>
+      <button 
+        onClick={handleUpload} 
+        style={{ 
+          marginTop: "10px",
+          padding: "8px 16px",
+          backgroundColor: "#007bff",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer"
+        }}
+      >
         Upload
       </button>
-      <p>{status}</p>
+      <p style={{ 
+        marginTop: "15px", 
+        fontSize: "14px",
+        color: status.includes("Error") ? "#dc3545" : "#28a745"
+      }}>
+        {status}
+      </p>
 
       {fileInfo && (
-        <div style={{ marginTop: "10px", backgroundColor: "#fff", padding: "10px" }}>
+        <div style={{ 
+          marginTop: "15px", 
+          backgroundColor: "#fff", 
+          padding: "15px",
+          borderRadius: "6px",
+          border: "1px solid #ddd"
+        }}>
           <strong>File Info:</strong>
-          <p>Name: {fileInfo.name}</p>
-          <p>Size: {fileInfo.size} bytes</p>
-          <p>Type: {fileInfo.type}</p>
-          <p>Collection: {fileInfo.collection}</p>
+          <p style={{ margin: "5px 0" }}>Name: {fileInfo.name}</p>
+          <p style={{ margin: "5px 0" }}>Size: {(fileInfo.size / 1024).toFixed(2)} KB</p>
+          <p style={{ margin: "5px 0" }}>Type: {fileInfo.type}</p>
+          <p style={{ margin: "5px 0" }}>Collection: {fileInfo.collection}</p>
         </div>
       )}
     </div>
   );
-}
-
-UploadArea.propTypes = {
-  onUploaded: PropTypes.func.isRequired,
 };
+
+export default UploadArea;
