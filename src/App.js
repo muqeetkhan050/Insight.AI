@@ -1,40 +1,45 @@
 import { Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
 import './App.css';
 import InsightLandingPage from './components/InsightLandingPage';
-import ChatWithUpload from './components/ChatWithUpload';
-import Chatbox from './components/Chatbox';
 import ChatPage from './components/ChatPage';
 
-
-import React, { useState } from 'react';
-import UploadArea from './components/UploadArea';
-// import Chatbox from './Chatbox';
-
-// function App() {
-//   const [currentCollection, setCurrentCollection] = useState(null);
-
-//   const handleFileUploaded = (collectionName) => {
-//     setCurrentCollection(collectionName);
-//   };
-
-//   return (
-//     <div style={{ display: 'flex', height: '100vh', fontFamily: 'Arial, sans-serif' }}>
-//       <UploadArea onUploaded={handleFileUploaded} />
-//       <Chatbox collectionName={currentCollection} />
-//     </div>
-//   );
-// }
-
-// export default App;
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [error, setError] = useState(null);
 
   return (
     <div>
+      {error && (
+        <div style={{ 
+          position: 'fixed', 
+          top: 20, 
+          right: 20, 
+          backgroundColor: '#ff4444',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '4px',
+          zIndex: 1000
+        }}>
+          {error}
+        </div>
+      )}
+      
       {currentPage === 'home' ? (
-        <InsightLandingPage onNavigateToChat={() => setCurrentPage('chat')} />
+        <InsightLandingPage 
+          onNavigateToChat={() => {
+            setCurrentPage('chat');
+            setError(null);
+          }} 
+        />
       ) : (
-        <ChatPage onBackToHome={() => setCurrentPage('home')} />
+        <ChatPage 
+          onBackToHome={() => {
+            setCurrentPage('home');
+            setError(null);
+          }}
+          onError={setError}
+        />
       )}
     </div>
   );
