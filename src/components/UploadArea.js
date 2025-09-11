@@ -1,5 +1,9 @@
 
 
+
+
+
+
 import React, { useState } from 'react';
 
 const UploadArea = ({ onUploaded }) => {
@@ -268,7 +272,7 @@ const UploadArea = ({ onUploaded }) => {
         <ul style={{ margin: "5px 0", paddingLeft: "20px" }}>
           <li>Only PDF files are supported</li>
           <li>Maximum file size: 10MB</li>
-          <li>Make sure the server is running on port 8000</li>
+  
         </ul>
       </div>
     </div>
