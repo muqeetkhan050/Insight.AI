@@ -113,6 +113,7 @@ const UploadArea = ({ onUploaded }) => {
     }
   };
 
+
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
